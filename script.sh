@@ -8,10 +8,10 @@
 # The name of the job:
 #SBATCH --job-name="test script"
 
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 
 # Maximum number of tasks/CPU cores used by the job:
-#SBATCH --ntasks=8
+#SBATCH --ntasks=4
 #SBATCH --cpus-per-task=1
 
 # Send yourself an email when the job:
@@ -24,11 +24,12 @@
 #SBATCH --mail-user=jiapengt@student.unimelb.edu.au
 
 # The maximum running time of the job in days-hours:mins:sec
-#SBATCH --time=00:10:00
+#SBATCH --time=00:40:00
 
 module load Python/3.6.4-spartan_gcc-6.2.0
+# module load Python/3.4.3-goolf-2015a
 
 # Run the job from the directory where it was launched (default)
 
 # The job command(s):
-mpirun -np 8 python test
+mpirun python test.py

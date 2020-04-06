@@ -85,7 +85,7 @@ languages_list = {}             # languages dict
 my_size = 0                     # size the current process should read
 start_lines = 0                 # start point of current process
 isSingleCoreMode = False        # using single core mode or not
-file_name = 'bigTwitter.json'   # file name
+file_name = 'tinyTwitter.json'   # file name
 
 # determine the mode
 if size == 1:
@@ -107,20 +107,18 @@ if not isSingleCoreMode:
     # when broadcast rank 0 does not work on the task
     total_lines = comm.bcast(total_lines, root=0)
     # default size a process should read
-    default_size = np.ceil(total_lines / (size - 1))
+    default_size = np.ceil(total_lines / size)
     # the size that last process should read
-    end_size = total_lines - (default_size * (size - 2))
+    end_size = total_lines - (default_size * (size - 1))
     # assign the size that current process should read
     for i in range(0, size):
-        if rank == size - 1:
+        if rank == size:
             my_size = end_size
         if rank == i:
             my_size = default_size
-
-        start_lines = default_size * (rank - 1)    # assign different start lines to each process
+        start_lines = default_size * rank    # assign different start lines to each process
 else:
     my_size = total_lines
-
 # read the file from start point
 for index, line in enumerate(file):
     if index == int(start_lines):
