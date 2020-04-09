@@ -8,10 +8,10 @@
 # The name of the job:
 #SBATCH --job-name="test script"
 
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 
 # Maximum number of tasks/CPU cores used by the job:
-#SBATCH --ntasks=4
+#SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 
 # Send yourself an email when the job:

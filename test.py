@@ -71,9 +71,35 @@ def handleJSONHashtagCode(dataObj):
 
 
 # function to handle string Hashtag code
-def handleStringHashtagCode(str):
-    return None
-    # print("search all str to find if there are hashtag code")
+def handleStringHashtagCode(datastr):
+    keyword_1 = 'text'
+    keyword_2 = 'truncated'
+    keyword_3 = 'hashtags'
+    keyword_4 = 'symbols'
+
+    # find index of all keywords
+    start_index_1 = datastr.find(keyword_1)
+    end_index_1 = datastr.find(keyword_2)
+    start_index_2 = datastr.find(keyword_3)
+    end_index_2 = datastr.find(keyword_4)
+
+    # find substring of datastr
+    text_tags = datastr[start_index_1 + len(keyword_1):end_index_1] + datastr[
+                                                                      start_index_2 + len(keyword_2):end_index_2]
+    # find all hashtags
+    text_tags = [tag.strip("#").lower() for tag in text_tags.replace('#', ' #').split() if tag.startswith("#")]
+    # add to dict
+    if text_tags:
+        for tag in text_tags:
+            # remove punctuation
+            for punc in string.punctuation:
+                if punc in tag:
+                    tag = tag.replace(punc, '')
+
+            if tag in hashtags_list:
+                hashtags_list[tag] += 1
+            else:
+                hashtags_list[tag] = 1
 
 
 comm = MPI.COMM_WORLD
@@ -85,7 +111,7 @@ languages_list = {}             # languages dict
 my_size = 0                     # size the current process should read
 start_lines = 0                 # start point of current process
 isSingleCoreMode = False        # using single core mode or not
-file_name = 'tinyTwitter.json'   # file name
+file_name = 'bigTwitter.json'   # file name
 
 # determine the mode
 if size == 1:
@@ -138,6 +164,7 @@ for index, line in enumerate(file):
                     handleJSONLanuageCode(dataObj)
                 else:
                     handleStringLanguageCode(dataStr)
+                    handleStringHashtagCode(dataStr)
         break       # does not allow each process go through the whole file
 file.close()
 comm.Barrier()
@@ -156,6 +183,13 @@ if rank == 0:
     for hashtag_element in collect_result_hashtags:
         final_result_hashtags += Counter(hashtag_element)
 
-    print(sorted(final_result_language.items(), key=lambda x: x[1], reverse=True)[0:10])
-    print(sorted(final_result_hashtags.items(), key=lambda x: x[1], reverse=True)[0:10])
+    # print(sorted(final_result_language.items(), key=lambda x: x[1], reverse=True)[0:10])
+    # print(sorted(final_result_hashtags.items(), key=lambda x: x[1], reverse=True)[0:10])
+    res_language = sorted(final_result_language.items(), key=lambda x: x[1], reverse=True)[0:10]
+    res_hashtag = sorted(final_result_hashtags.items(), key=lambda x: x[1], reverse=True)[0:10]
 
+    for i in range(len(res_language)):
+        print(i+1, ".", res_language[i][0], ", ", res_language[i][1])
+    print("\n")
+    for i in range(len(res_hashtag)):
+        print(i+1, ". #", res_hashtag[i][0], ", ", res_hashtag[i][1])
